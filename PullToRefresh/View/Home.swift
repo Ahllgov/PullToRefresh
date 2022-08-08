@@ -9,9 +9,7 @@ import SwiftUI
 
 struct Home: View {
     
-    @State var newPost = ["New post", "New post", "New post", "New post", "New post", "New post"]
-    @State var refresh = Refresh(started: false, released: false)
-    
+    @StateObject var refresh = RefreshViewModel(started: false, released: false)
     
     var body: some View {
         VStack(spacing: 0) {
@@ -45,12 +43,12 @@ struct Home: View {
                         
                         if refresh.startOffset == refresh.offset && refresh.started && !refresh.released {
                             withAnimation(Animation.linear) { refresh.released = true }
-                            updateData()
+                            refresh.updateData()
                         }
                         
                         if refresh.startOffset == refresh.offset && refresh.started && refresh.released && refresh.invalid {
                             refresh.invalid = false
-                            updateData()
+                            refresh.updateData()
                         }
                     }
                     
@@ -73,7 +71,7 @@ struct Home: View {
                     }
                     
                     VStack {
-                        ForEach(newPost, id: \.self) { post in
+                        ForEach(refresh.posts, id: \.self) { post in
                             HStack {
                                 Text(post)
                                     Spacer()
@@ -92,32 +90,10 @@ struct Home: View {
         }
         .background(Color.gray.opacity(0.06))
     }
-    
-    func updateData() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-            withAnimation(Animation.linear) {
-                if refresh.startOffset == refresh.offset {
-                    refresh.released = false
-                    refresh.started = false
-                    newPost.append("New post")
-                } else {
-                    refresh.invalid = true
-                }
-            }
-        }
-    }
 }
 
 struct Home_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
     }
-}
-
-struct Refresh {
-    var startOffset: CGFloat = 0
-    var offset: CGFloat = 0
-    var started: Bool
-    var released: Bool
-    var invalid: Bool = false
 }
